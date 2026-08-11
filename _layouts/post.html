@@ -46,12 +46,18 @@
   }
   th, td { border: 1px solid #ddd; padding: .45rem .7rem; text-align: left; }
   th { background: #fafafa; }
+  body.wide-tables { max-width: 90rem; }
+  body.wide-tables > :not(table) {
+    max-width: 46rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
   body.wide-tables table {
     display: table;
-    width: min(90rem, calc(100vw - 2.5rem));
-    max-width: none;
-    margin-left: 50%;
-    transform: translateX(-50%);
+    width: 100%;
+    max-width: 100%;
+    margin: 1.6rem 0;
+    transform: none;
     table-layout: fixed;
     overflow: visible;
   }
@@ -69,7 +75,7 @@
       display: block;
       width: 100%;
       max-width: 100%;
-      margin-left: 0;
+      margin: 1.6rem 0;
       transform: none;
       table-layout: auto;
       overflow-x: auto;
