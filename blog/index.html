@@ -1,0 +1,37 @@
+---
+title: Writing
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Writing — Sahil Verma</title>
+<style>
+  body {
+    max-width: 46rem; margin: 0 auto; padding: 2.5rem 1.25rem 6rem;
+    font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #1a1a1a;
+  }
+  a { color: #0645ad; }
+  .home { font-size: .9rem; display: block; margin-bottom: 2rem; }
+  ul { list-style: none; padding: 0; }
+  li { margin: 1.4rem 0; }
+  .date { color: #888; font-size: .87rem; }
+  .sub { color: #555; font-size: .95rem; margin-top: .2rem; }
+</style>
+</head>
+<body>
+  <a class="home" href="/">← Sahil Verma</a>
+  <h1>Writing</h1>
+  <ul>
+  {% for post in site.posts %}
+    <li>
+      <a href="{{ post.url }}">{{ post.title }}</a>
+      <span class="date">· {{ post.date | date: "%b %Y" }}</span>
+      {% if post.subtitle %}<div class="sub">{{ post.subtitle }}</div>{% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+</body>
+</html>

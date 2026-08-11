@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page.title }} — Sahil Verma</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+<script>
+  // Macros live HERE, in one place, for the whole series.
+  // Change \polold once and every post updates. This is the single
+  // highest-leverage thing in this file — notation drift across a
+  // five-part series is what kills it.
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // ORDER MATTERS: $$ must be tried before $
+      delimiters: [
+        { left: "$$", right: "$$", display: true  },
+        { left: "\\[", right: "\\]", display: true  },
+        { left: "$",  right: "$",  display: false },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      macros: {
+        "\\E":        "\\mathbb{E}",
+        "\\grad":     "\\nabla_{\\theta}",
+        "\\pol":      "\\pi_{\\theta}",
+        "\\polold":   "\\pi_{\\theta_{\\text{old}}}",
+        "\\polref":   "\\pi_{\\text{ref}}",
+        "\\polroll":  "\\pi_{\\text{rollout}}",
+        "\\Adv":      "A^{\\pi}",
+        "\\Qfn":      "Q^{\\pi}",
+        "\\Vfn":      "V^{\\pi}",
+        "\\Vhat":     "V_{\\phi}",
+        "\\score":    "\\grad \\log \\pol",
+        "\\clip":     "\\operatorname{clip}",
+        "\\KL":       "\\operatorname{KL}",
+        "\\Var":      "\\operatorname{Var}"
+      },
+      throwOnError: false,
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+    });
+  });
+</script>
+
+<style>
+  html { overflow-x: hidden; }
+  body {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 6rem;
+    font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #1a1a1a;
+    background: #fff;
+    overflow-x: hidden;
+  }
+  a { color: #0645ad; }
+  h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 .3rem; }
+  h2 { font-size: 1.3rem; margin: 2.6rem 0 .8rem; }
+  h3 { font-size: 1.1rem; margin: 2rem 0 .6rem; }
+  .meta { color: #777; font-size: .9rem; margin-bottom: 2.5rem; }
+  .home { font-size: .9rem; margin-bottom: 2rem; display: block; }
+  /* long display equations must scroll, not overflow, on phones */
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: .3em 0; }
+  pre {
+    background: #f6f8fa; padding: .9rem 1rem; border-radius: 6px;
+    overflow-x: auto; font-size: .87rem; line-height: 1.45;
+  }
+  code { font-size: .89em; }
+  blockquote {
+    margin: 1.6rem 0; padding: .1rem 0 .1rem 1.1rem;
+    border-left: 3px solid #ddd; color: #444;
+  }
+  table {
+    border-collapse: collapse;
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 1.6rem 0;
+    font-size: .93rem;
+  }
+  th, td { border: 1px solid #ddd; padding: .45rem .7rem; text-align: left; }
+  th { background: #fafafa; }
+  figure { margin: 2rem 0; }
+  figure svg, figure img { max-width: 100%; height: auto; }
+  figcaption { color: #777; font-size: .87rem; margin-top: .5rem; }
+</style>
+</head>
+
+<body>
+  <a class="home" href="/">← Sahil Verma</a>
+
+  <h1>{{ page.title }}</h1>
+  <div class="meta">
+    {{ page.date | date: "%B %-d, %Y" }}
+    {% if page.subtitle %} · {{ page.subtitle }}{% endif %}
+  </div>
+
+  {{ content }}
+</body>
+</html>

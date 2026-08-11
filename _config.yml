@@ -1,0 +1,32 @@
+# Drop this at the repo root of vsahil.github.io
+#
+# Jekyll copies any file WITHOUT YAML front matter through verbatim.
+# index.html has none, so it is untouched. Nothing about the existing
+# site changes.
+
+title: Sahil Verma
+url: https://vsahil.github.io
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  # null => kramdown protects $$...$$ from Markdown (no underscore
+  # mangling) but does NOT inject MathJax tags. KaTeX renders it client-side.
+  math_engine: null
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    default_lang: python
+
+permalink: /blog/:title/
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
