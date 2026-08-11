@@ -105,9 +105,11 @@ function renderLayout(template, post, content) {
   const subtitle = post.subtitle
     ? ` · ${escapeHtml(post.subtitle)}`
     : "";
+  const bodyClass = post.wide_tables ? "wide-tables" : "";
 
   const rendered = template
     .replaceAll("{{ page.title }}", escapeHtml(post.title))
+    .replace("{{ page.body_class }}", bodyClass)
     .replace('{{ page.date | date: "%B %-d, %Y" }}', formatPostDate(post.date))
     .replace(
       "{% if page.subtitle %} · {{ page.subtitle }}{% endif %}",

@@ -46,13 +46,31 @@
   }
   th, td { border: 1px solid #ddd; padding: .45rem .7rem; text-align: left; }
   th { background: #fafafa; }
+  body.wide-tables table {
+    width: min(90rem, calc(100vw - 2.5rem));
+    max-width: none;
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+  body.wide-tables th:nth-child(1) { min-width: 4.5rem; }
+  body.wide-tables th:nth-child(2) { min-width: 18rem; }
+  body.wide-tables th:nth-child(3) { min-width: 28rem; }
+  body.wide-tables th:nth-child(4) { min-width: 24rem; }
+  @media (max-width: 50rem) {
+    body.wide-tables table {
+      width: 100%;
+      max-width: 100%;
+      margin-left: 0;
+      transform: none;
+    }
+  }
   figure { margin: 2rem 0; }
   figure svg, figure img { max-width: 100%; height: auto; }
   figcaption { color: #777; font-size: .87rem; margin-top: .5rem; }
 </style>
 </head>
 
-<body>
+<body class="{{ page.body_class }}">
   <a class="home" href="/">← Sahil Verma</a>
 
   <h1>{{ page.title }}</h1>
