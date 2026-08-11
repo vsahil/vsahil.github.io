@@ -5,45 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ page.title }} — Sahil Verma</title>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-
-<script>
-  // Macros live HERE, in one place, for the whole series.
-  // Change \polold once and every post updates. This is the single
-  // highest-leverage thing in this file — notation drift across a
-  // five-part series is what kills it.
-  document.addEventListener("DOMContentLoaded", function () {
-    renderMathInElement(document.body, {
-      // ORDER MATTERS: $$ must be tried before $
-      delimiters: [
-        { left: "$$", right: "$$", display: true  },
-        { left: "\\[", right: "\\]", display: true  },
-        { left: "$",  right: "$",  display: false },
-        { left: "\\(", right: "\\)", display: false }
-      ],
-      macros: {
-        "\\E":        "\\mathbb{E}",
-        "\\grad":     "\\nabla_{\\theta}",
-        "\\pol":      "\\pi_{\\theta}",
-        "\\polold":   "\\pi_{\\theta_{\\text{old}}}",
-        "\\polref":   "\\pi_{\\text{ref}}",
-        "\\polroll":  "\\pi_{\\text{rollout}}",
-        "\\Adv":      "A^{\\pi}",
-        "\\Qfn":      "Q^{\\pi}",
-        "\\Vfn":      "V^{\\pi}",
-        "\\Vhat":     "V_{\\phi}",
-        "\\score":    "\\grad \\log \\pol",
-        "\\clip":     "\\operatorname{clip}",
-        "\\KL":       "\\operatorname{KL}",
-        "\\Var":      "\\operatorname{Var}"
-      },
-      throwOnError: false,
-      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
-    });
-  });
-</script>
+<!-- Math is rendered during the build with VS Code's Markdown/KaTeX plugin. -->
+<link rel="stylesheet" href="/assets/katex/katex.min.css">
 
 <style>
   html { overflow-x: hidden; }

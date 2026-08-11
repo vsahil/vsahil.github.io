@@ -1,0 +1,16 @@
+{
+  "name": "vsahil-github-io",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "preview": "npm run build && node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "@vscode/markdown-it-katex": "1.1.2",
+    "gray-matter": "4.0.3",
+    "katex": "0.16.22",
+    "markdown-it": "14.1.0"
+  }
+}
