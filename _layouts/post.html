@@ -47,22 +47,37 @@
   th, td { border: 1px solid #ddd; padding: .45rem .7rem; text-align: left; }
   th { background: #fafafa; }
   body.wide-tables table {
+    display: table;
     width: min(90rem, calc(100vw - 2.5rem));
     max-width: none;
     margin-left: 50%;
     transform: translateX(-50%);
+    table-layout: fixed;
+    overflow: visible;
   }
-  body.wide-tables th:nth-child(1) { min-width: 4.5rem; }
-  body.wide-tables th:nth-child(2) { min-width: 18rem; }
-  body.wide-tables th:nth-child(3) { min-width: 28rem; }
-  body.wide-tables th:nth-child(4) { min-width: 24rem; }
+  body.wide-tables th:nth-child(1) { width: 6%; }
+  body.wide-tables th:nth-child(2) { width: 22%; }
+  body.wide-tables th:nth-child(3) { width: 42%; }
+  body.wide-tables th:nth-child(4) { width: 30%; }
+  body.wide-tables th,
+  body.wide-tables td {
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
   @media (max-width: 50rem) {
     body.wide-tables table {
+      display: block;
       width: 100%;
       max-width: 100%;
       margin-left: 0;
       transform: none;
+      table-layout: auto;
+      overflow-x: auto;
     }
+    body.wide-tables th:nth-child(1),
+    body.wide-tables th:nth-child(2),
+    body.wide-tables th:nth-child(3),
+    body.wide-tables th:nth-child(4) { width: auto; }
   }
   figure { margin: 2rem 0; }
   figure svg, figure img { max-width: 100%; height: auto; }
