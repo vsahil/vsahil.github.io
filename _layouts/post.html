@@ -107,7 +107,61 @@
     --waline-avatar-size: 2.5rem;
     --waline-m-avatar-size: 2rem;
   }
-  #waline .wl-reaction { margin-bottom: 2rem; }
+  .article-reactions {
+    margin: 2rem 0 2.6rem;
+    text-align: center;
+  }
+  .article-reactions-title {
+    margin-bottom: .65rem;
+    font-weight: 700;
+  }
+  .article-reactions-list {
+    display: flex;
+    justify-content: center;
+    gap: .65rem;
+  }
+  .article-reaction {
+    min-width: 5.25rem;
+    padding: .5rem .7rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: #333;
+    font: inherit;
+    cursor: pointer;
+  }
+  .article-reaction:hover {
+    border-color: #b8c9e8;
+    background: #f7faff;
+  }
+  .article-reaction[aria-pressed="true"] {
+    border-color: #8cacdf;
+    background: #eef4ff;
+    color: #0645ad;
+  }
+  .article-reaction:disabled { cursor: wait; opacity: .65; }
+  .article-reaction-icon {
+    position: relative;
+    display: block;
+    width: 2.7rem;
+    height: 2.7rem;
+    margin: 0 auto .15rem;
+  }
+  .article-reaction-icon img { width: 100%; height: 100%; }
+  .article-reaction-count {
+    position: absolute;
+    top: -.25rem;
+    right: -.35rem;
+    min-width: 1.1rem;
+    padding: 0 .2rem;
+    border: 1px solid #0645ad;
+    border-radius: 999px;
+    background: #fff;
+    color: #0645ad;
+    font-size: .7rem;
+    line-height: 1rem;
+  }
+  .article-reaction-label { display: block; font-size: .82rem; }
   #waline .wl-card-item { padding-left: 0; padding-right: 0; }
   #waline .wl-thread-toggle {
     margin: .2rem 0 .75rem;
@@ -142,18 +196,132 @@
   <section class="discussion" aria-labelledby="discussion-title">
     <h2 id="discussion-title">Discussion</h2>
     <p class="discussion-note">Name is optional. Comments appear immediately.</p>
+    <div class="article-reactions" aria-labelledby="article-reactions-title">
+      <div id="article-reactions-title" class="article-reactions-title">What did you think?</div>
+      <div class="article-reactions-list">
+        <button class="article-reaction" type="button" data-reaction="0" aria-pressed="false">
+          <span class="article-reaction-icon">
+            <img src="/assets/reactions/thumbs-up.svg" alt="">
+            <span class="article-reaction-count">0</span>
+          </span>
+          <span class="article-reaction-label">Helpful</span>
+        </button>
+        <button class="article-reaction" type="button" data-reaction="1" aria-pressed="false">
+          <span class="article-reaction-icon">
+            <img src="/assets/reactions/heart.svg" alt="">
+            <span class="article-reaction-count">0</span>
+          </span>
+          <span class="article-reaction-label">Loved it</span>
+        </button>
+      </div>
+    </div>
     <div id="waline"></div>
   </section>
 
   <script type="module">
     import { init } from 'https://unpkg.com/@waline/client@3.15.2/dist/waline.js';
 
+    const serverURL = 'https://vsahil-blog-comments.vercel.app';
+    const articlePath = window.location.pathname.replace(/\/$/, '');
     const walineRoot = document.querySelector('#waline');
+    const reactionButtons = [...document.querySelectorAll('.article-reaction')];
+    const reactionStorageKey = 'SAHIL_BLOG_REACTIONS';
+
+    function readReactionStore() {
+      try {
+        const value = JSON.parse(localStorage.getItem(reactionStorageKey) ?? '{}');
+        return value && typeof value === 'object' ? value : {};
+      } catch {
+        return {};
+      }
+    }
+
+    const reactionStore = readReactionStore();
+    const selectedReactions = new Set(
+      Array.isArray(reactionStore[articlePath]) ? reactionStore[articlePath] : []
+    );
+
+    function renderReactionSelection() {
+      for (const button of reactionButtons) {
+        const index = Number(button.dataset.reaction);
+        button.setAttribute('aria-pressed', String(selectedReactions.has(index)));
+      }
+    }
+
+    function saveReactionSelection() {
+      reactionStore[articlePath] = [...selectedReactions].sort();
+      localStorage.setItem(reactionStorageKey, JSON.stringify(reactionStore));
+    }
+
+    async function loadReactionCounts() {
+      try {
+        const response = await fetch(
+          `${serverURL}/api/article?path=${encodeURIComponent(articlePath)}` +
+          '&type=reaction0%2Creaction1&lang=en'
+        );
+        const payload = await response.json();
+        if (payload.errno) throw new Error(payload.errmsg || 'Unable to load reactions');
+
+        const counts = payload.data?.[0] ?? {};
+        for (const button of reactionButtons) {
+          const index = Number(button.dataset.reaction);
+          button.querySelector('.article-reaction-count').textContent =
+            String(counts[`reaction${index}`] ?? 0);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    let reactionBusy = false;
+    for (const button of reactionButtons) {
+      button.addEventListener('click', async () => {
+        if (reactionBusy) return;
+
+        reactionBusy = true;
+        for (const item of reactionButtons) item.disabled = true;
+
+        const index = Number(button.dataset.reaction);
+        const wasSelected = selectedReactions.has(index);
+
+        try {
+          const response = await fetch(`${serverURL}/api/article?lang=en`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              path: articlePath,
+              type: `reaction${index}`,
+              action: wasSelected ? 'desc' : 'inc'
+            })
+          });
+          const payload = await response.json();
+          if (payload.errno) throw new Error(payload.errmsg || 'Unable to update reaction');
+
+          if (wasSelected) selectedReactions.delete(index);
+          else selectedReactions.add(index);
+
+          const count = payload.data?.[0]?.[`reaction${index}`];
+          if (typeof count === 'number') {
+            button.querySelector('.article-reaction-count').textContent = String(count);
+          }
+          saveReactionSelection();
+          renderReactionSelection();
+        } catch (error) {
+          console.error(error);
+        } finally {
+          reactionBusy = false;
+          for (const item of reactionButtons) item.disabled = false;
+        }
+      });
+    }
+
+    renderReactionSelection();
+    loadReactionCounts();
 
     init({
       el: walineRoot,
-      serverURL: 'https://vsahil-blog-comments.vercel.app',
-      path: window.location.pathname.replace(/\/$/, ''),
+      serverURL,
+      path: articlePath,
       lang: 'en',
       meta: ['nick'],
       requiredMeta: [],
@@ -163,16 +331,9 @@
       imageUploader: false,
       search: false,
       noRss: true,
-      reaction: [
-        '/assets/reactions/thumbs-up.svg',
-        '/assets/reactions/heart.svg'
-      ],
       locale: {
         nick: 'Name (optional)',
-        placeholder: 'Join the discussion…',
-        reactionTitle: 'What did you think?',
-        reaction0: 'Helpful',
-        reaction1: 'Loved it'
+        placeholder: 'Join the discussion…'
       }
     });
 
