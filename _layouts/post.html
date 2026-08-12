@@ -7,6 +7,7 @@
 
 <!-- Math is rendered during the build with VS Code's Markdown/KaTeX plugin. -->
 <link rel="stylesheet" href="/assets/katex/katex.min.css">
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@3.15.2/dist/waline.css">
 
 <style>
   html { overflow-x: hidden; }
@@ -88,6 +89,42 @@
   figure { margin: 2rem 0; }
   figure svg, figure img { max-width: 100%; height: auto; }
   figcaption { color: #777; font-size: .87rem; margin-top: .5rem; }
+  .discussion {
+    margin-top: 4rem;
+    padding-top: 1.8rem;
+    border-top: 1px solid #ddd;
+  }
+  .discussion h2 { margin-top: 0; }
+  .discussion-note {
+    margin: -.25rem 0 1.4rem;
+    color: #666;
+    font-size: .9rem;
+  }
+  #waline {
+    --waline-theme-color: #0645ad;
+    --waline-active-color: #043b91;
+    --waline-font-size: 16px;
+    --waline-avatar-size: 2.5rem;
+    --waline-m-avatar-size: 2rem;
+  }
+  #waline .wl-reaction { margin-bottom: 2rem; }
+  #waline .wl-card-item { padding-left: 0; padding-right: 0; }
+  #waline .wl-thread-toggle {
+    margin: .2rem 0 .75rem;
+    padding: .3rem .65rem;
+    border: 1px solid #d4d4d4;
+    border-radius: 999px;
+    color: #555;
+    background: #fff;
+    font: inherit;
+    font-size: .78rem;
+    cursor: pointer;
+  }
+  #waline .wl-thread-toggle:hover {
+    border-color: #0645ad;
+    color: #0645ad;
+  }
+  #waline .wl-thread-collapsed { display: none; }
 </style>
 </head>
 
@@ -101,5 +138,82 @@
   </div>
 
   {{ content }}
+
+  <section class="discussion" aria-labelledby="discussion-title">
+    <h2 id="discussion-title">Discussion</h2>
+    <p class="discussion-note">Name is optional. Comments appear immediately.</p>
+    <div id="waline"></div>
+  </section>
+
+  <script type="module">
+    import { init } from 'https://unpkg.com/@waline/client@3.15.2/dist/waline.js';
+
+    const walineRoot = document.querySelector('#waline');
+
+    init({
+      el: walineRoot,
+      serverURL: 'https://vsahil-blog-comments.vercel.app',
+      path: window.location.pathname.replace(/\/$/, ''),
+      lang: 'en',
+      meta: ['nick'],
+      requiredMeta: [],
+      login: 'disable',
+      commentSorting: 'latest',
+      pageSize: 10,
+      imageUploader: false,
+      search: false,
+      noRss: true,
+      reaction: [
+        '/assets/reactions/thumbs-up.svg',
+        '/assets/reactions/heart.svg'
+      ],
+      locale: {
+        nick: 'Name (optional)',
+        placeholder: 'Join the discussion…',
+        reactionTitle: 'What did you think?',
+        reaction0: 'Helpful',
+        reaction1: 'Loved it'
+      }
+    });
+
+    function foldReplyThreads() {
+      for (const thread of walineRoot.querySelectorAll('.wl-cards > .wl-card-item .wl-quote')) {
+        if (thread.dataset.foldReady === 'true') continue;
+
+        const replyCount = thread.querySelectorAll('.wl-card-item').length;
+        if (!replyCount) continue;
+
+        thread.dataset.foldReady = 'true';
+        thread.classList.add('wl-thread-collapsed');
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'wl-thread-toggle';
+        toggle.setAttribute('aria-expanded', 'false');
+
+        const setLabel = (expanded) => {
+          toggle.textContent = expanded
+            ? 'Hide replies'
+            : `View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`;
+        };
+
+        setLabel(false);
+        toggle.addEventListener('click', () => {
+          const expanded = toggle.getAttribute('aria-expanded') === 'true';
+          toggle.setAttribute('aria-expanded', String(!expanded));
+          thread.classList.toggle('wl-thread-collapsed', expanded);
+          setLabel(!expanded);
+        });
+
+        thread.before(toggle);
+      }
+    }
+
+    new MutationObserver(foldReplyThreads).observe(walineRoot, {
+      childList: true,
+      subtree: true
+    });
+    foldReplyThreads();
+  </script>
 </body>
 </html>
