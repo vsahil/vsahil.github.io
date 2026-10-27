@@ -177,6 +177,40 @@ async function renderPosts() {
   return posts.sort((a, b) => b.date - a.date);
 }
 
+// The library keeps its original dashboard and interactions. Render its note
+// bodies with the same table/math support as blog posts, leaving source text intact.
+async function renderLibraryNotes() {
+  const filename = path.join(outputRoot, "ai-for-biology", "index.html");
+  let page = await readFile(filename, "utf8");
+  const pattern = /(<script id="library-data" type="application\/json">)([\s\S]*?)(<\/script>)/;
+  const match = page.match(pattern);
+  if (!match) throw new Error("Missing AI-for-biology library data");
+  const data = JSON.parse(match[2]);
+  const notesMarkdown = new MarkdownIt({ html: false, linkify: true })
+    .use(markdownItKatex.default ?? markdownItKatex, {
+      enableFencedBlocks: true, globalGroup: true, katex, throwOnError: false
+    });
+  for (const paper of data.papers) {
+    paper.summary_html = notesMarkdown.render(paper.summary_text);
+    if (paper.summary_html.includes('class="katex-error"')) {
+      throw new Error(`Invalid math in library paper ${paper.id}`);
+    }
+  }
+  const json = JSON.stringify(data)
+    .replaceAll("<", "\\u003c").replaceAll(">", "\\u003e").replaceAll("&", "\\u0026");
+  page = page.replace(pattern, () => match[1] + json + match[3]);
+  page = page.replace("</head>", `<link rel="stylesheet" href="/assets/katex/katex.min.css">
+<style>
+.summary-content table { min-width: 0; table-layout: auto; display: block; overflow-x: auto; margin: 1rem 0; }
+.summary-content th, .summary-content td { padding: .6rem; font-size: inherit; text-transform: none; letter-spacing: normal; }
+.summary-content th { background: var(--thead); }
+.summary-content .katex-display { overflow-x: auto; overflow-y: hidden; }
+</style>
+</head>`);
+  await writeFile(filename, page);
+  console.log(`Rendered notes for ${data.papers.length} library papers`);
+}
+
 async function renderBlogIndex(posts) {
   const indexPath = path.join(root, "blog", "index.html");
   const source = await readFile(indexPath, "utf8");
@@ -207,6 +241,7 @@ await rm(outputRoot, { recursive: true, force: true });
 await mkdir(outputRoot, { recursive: true });
 await copyStaticFiles();
 await copyKatexAssets();
+await renderLibraryNotes();
 const posts = await renderPosts();
 await renderBlogIndex(posts);
 await writeFile(path.join(outputRoot, ".nojekyll"), "");
