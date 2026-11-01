@@ -220,7 +220,8 @@ async function renderBlogIndex(posts) {
       const subtitle = post.subtitle
         ? `\n      <div class="sub">${escapeHtml(post.subtitle)}</div>`
         : "";
-      return `    <li>\n      <a href="/blog/${encodeURIComponent(post.slug)}/">${escapeHtml(post.title)}</a>\n      <span class="date">· ${formatIndexDate(post.date)}</span>${subtitle}\n    </li>`;
+      const href = post.link_url ?? `/blog/${encodeURIComponent(post.slug)}/`;
+      return `    <li>\n      <a href="${escapeHtml(href)}">${escapeHtml(post.title)}</a>\n      <span class="date">· ${formatIndexDate(post.date)}</span>${subtitle}\n    </li>`;
     })
     .join("\n");
 

@@ -1,6 +1,7 @@
 ---
 title: "AI for Biology: Papers and Reading Notes"
 date: 2026-10-26
+link_url: /ai-for-biology/
 ---
 
 My AI-for-biology reading collection, organized by biological problem, with paper links, tags, related work, and my notes.
